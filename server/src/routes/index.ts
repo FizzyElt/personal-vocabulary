@@ -9,7 +9,7 @@ import { Word, wordScheme } from '../models/word';
 const route = express.Router();
 
 route.get('/', async (req: Request, res: Response) => {
-  if (isEmpty(req.query)) {
+  if (isEmpty(req.query || '')) {
     try {
       const words = await wordService.getAllWords();
       res.status(200).json({ words });
@@ -34,10 +34,8 @@ route.get('/', async (req: Request, res: Response) => {
     res.status(200).json({
       words,
     });
-    return;
   } catch (err) {
     res.status(500).json({ message: 'server error', err: err });
-    return;
   }
 });
 
