@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import { head, equals, append, propEq, pipe, not, inc, modify, assoc, mergeRight } from 'ramda';
 import Joi from 'joi';
+import { generateWordFiles } from '../script';
 
 export type WordDoc = {
   words: Word[];
@@ -114,5 +115,7 @@ class WordService {
     return words;
   }
 }
+
+generateWordFiles(`${__dirname}/words`);
 
 export default new WordService();

@@ -26,6 +26,7 @@ route.get('/', async (req: Request, res: Response) => {
 
   if (!prefix || !regex.test(prefix)) {
     res.status(400).json({ message: 'invalid prefix' });
+    return;
   }
 
   try {
@@ -33,8 +34,10 @@ route.get('/', async (req: Request, res: Response) => {
     res.status(200).json({
       words,
     });
+    return;
   } catch (err) {
     res.status(500).json({ message: 'server error', err: err });
+    return;
   }
 });
 
