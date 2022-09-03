@@ -15,12 +15,12 @@ import {
   Divider,
 } from '@chakra-ui/react';
 
-import { increaseReviewCount } from '~/api';
+import { increaseReviewCount } from '~/sanity-api';
 
 export default function WordDisplayModal({ isOpen = false, onClose = () => {}, word }) {
   useEffect(() => {
     if (isOpen && word.word) {
-      increaseReviewCount(word.word);
+      increaseReviewCount(word._id);
     }
   }, [isOpen]);
 

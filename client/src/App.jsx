@@ -9,110 +9,43 @@ import {
   useDisclosure,
   HStack,
   Button,
+  Spinner,
+  Center,
 } from '@chakra-ui/react';
 import WordCard from '~/components/WordCard';
 import WordFormModal from '~/components/WordFormModal';
 import WordDisplayModal from '~/components/WordDisplayModal';
 
-import { isEmpty, dissoc } from 'ramda';
-import { getAllWords, getWordsByPrefix, postNewWord, putWord, deleteWord } from './api';
+import useWords from '~/hooks/useWords';
+import useWordOperation from '~/hooks/useWordOperation';
+
+import { isEmpty, dissoc, omit, equals } from 'ramda';
+
+import { charList, fetchingStatus } from './utils';
+
 import { AddIcon } from '@chakra-ui/icons';
 
-const charList = [
-  'A',
-  'B',
-  'C',
-  'D',
-  'E',
-  'F',
-  'G',
-  'H',
-  'I',
-  'J',
-  'K',
-  'L',
-  'M',
-  'N',
-  'O',
-  'P',
-  'Q',
-  'R',
-  'S',
-  'T',
-  'U',
-  'V',
-  'W',
-  'X',
-  'Y',
-  'Z',
-];
+const isLoading = equals(fetchingStatus.loading);
 
 function App() {
-  const [words, setWords] = useState([]);
   const [prefix, setPrefix] = useState('');
   const [word, setWord] = useState(null);
+
+  const { words, status } = useWords(prefix);
+  const {
+    status: operationStatus,
+    handleCreateWord,
+    handleDeleteWord,
+    handleUpdateWord,
+  } = useWordOperation(word);
 
   const wordCreateClosure = useDisclosure();
   const wordDetailClosure = useDisclosure();
   const wordEditClosure = useDisclosure();
 
-  const handleGetWords = useCallback(async (prefix) => {
-    try {
-      if (isEmpty(prefix)) {
-        const res = await getAllWords();
-        const data = res.data;
-        setWords(data.words);
-        return;
-      }
-
-      const res = await getWordsByPrefix(prefix);
-      const data = res.data;
-      setWords(data.words);
-    } catch (error) {
-      console.log(error);
-    }
-  }, []);
-
-  useEffect(() => {
-    handleGetWords(prefix);
-  }, [prefix]);
-
-  const handleDeleteWord = async (word) => {
-    try {
-      await deleteWord(word);
-
-      // refetch data
-      await handleGetWords(prefix);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleCreateWord = async (word) => {
-    try {
-      await postNewWord(word);
-      wordCreateClosure.onClose();
-      // refetch data
-      await handleGetWords(prefix);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleUpdateWord = async (word) => {
-    try {
-      await putWord(word);
-      wordEditClosure.onClose();
-      // refetch data
-      await handleGetWords(prefix);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   return (
     <>
-      <Box>
+      <Box p={4}>
         <Container>
           <VStack align="stretch">
             <Flex>
@@ -130,37 +63,48 @@ function App() {
                 </Button>
               </HStack>
             </Flex>
+
+            {/** words list */}
             <VStack align="stretch">
-              {words.map((word) => (
-                <WordCard
-                  key={word.word}
-                  word={word}
-                  onClick={() => {
-                    wordDetailClosure.onOpen();
-                    setWord(word);
-                  }}
-                  onEdit={() => {
-                    wordEditClosure.onOpen();
-                    setWord(word);
-                  }}
-                  onDelete={() => handleDeleteWord(word.word)}
-                />
-              ))}
+              {isLoading(status) ? (
+                <Center>
+                  <Spinner />
+                </Center>
+              ) : (
+                words.map((word) => (
+                  <WordCard
+                    key={word._id}
+                    word={word}
+                    onClick={() => {
+                      wordDetailClosure.onOpen();
+                      setWord(word);
+                    }}
+                    onEdit={() => {
+                      wordEditClosure.onOpen();
+                      setWord(word);
+                    }}
+                    onDelete={() => handleDeleteWord(word)}
+                  />
+                ))
+              )}
             </VStack>
           </VStack>
         </Container>
       </Box>
+
       <WordFormModal
         isOpen={wordEditClosure.isOpen}
+        loading={isLoading(operationStatus)}
         onClose={wordEditClosure.onClose}
-        defaultFormData={dissoc('reviewCount', word)}
-        onSubmit={handleUpdateWord}
+        defaultFormData={omit(['review_count', '_id', 'prefix'], word)}
+        onSubmit={handleUpdateWord({ onSuccess: wordEditClosure.onClose })}
       />
 
       <WordFormModal
         isOpen={wordCreateClosure.isOpen}
+        loading={isLoading(operationStatus)}
         onClose={wordCreateClosure.onClose}
-        onSubmit={handleCreateWord}
+        onSubmit={handleCreateWord({ onSuccess: wordCreateClosure.onClose })}
       />
 
       <WordDisplayModal

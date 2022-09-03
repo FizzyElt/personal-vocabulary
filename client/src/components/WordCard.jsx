@@ -9,7 +9,7 @@ export default function WordCard({ word, onClick, onEdit, onDelete }) {
           <Text>{word.word}</Text>
           <Spacer />
           <HStack>
-            <Text>{word.reviewCount}</Text>
+            <Text>{word.review_count}</Text>
             <IconButton
               size="xs"
               icon={<EditIcon />}

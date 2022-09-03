@@ -41,6 +41,7 @@ const defaultWordData = {
 
 export default function WordFormModal({
   isOpen = false,
+  loading = false,
   onClose = () => {},
   onSubmit = () => {},
   defaultFormData = defaultWordData,
@@ -121,7 +122,7 @@ export default function WordFormModal({
           </VStack>
         </ModalBody>
         <ModalFooter>
-          <Button w="full" colorScheme="blue" onClick={handleSubmit(onSubmit)}>
+          <Button w="full" isLoading={loading} colorScheme="blue" onClick={handleSubmit(onSubmit)}>
             Submit
           </Button>
         </ModalFooter>
