@@ -20,11 +20,15 @@
 ## 使用技術
 - server
   - Typescript
-  - Express
-  - Ramda
+  - GraphQL
+  - Apollo Server
+  - Prisma (ORM)
+  - MongoDB
 - client
+  - Javascript
   - React
+  - Apollo Client
+  - GraphQL
   - Chakra-UI
-  - Axios
   - React-hook-form
   - Ramda
