@@ -1,0 +1,19 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model WordDoc {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  word         String   @unique
+  prefix       String
+  translation  String
+  review_count Int      @default(1)
+  links        String[]
+
+  @@map("words")
+}

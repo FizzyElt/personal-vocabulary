@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useQuery, useMutation } from '@apollo/client';
 import {
   Box,
   Container,
@@ -12,36 +13,24 @@ import {
   Spinner,
   Center,
 } from '@chakra-ui/react';
-import WordCard from '~/components/WordCard';
-import WordFormModal from '~/components/WordFormModal';
 import WordDisplayModal from '~/components/WordDisplayModal';
+import WordCreateModal from '~/components/WordCreateModal';
+import WordUpdateModal from '~/components/WordUpdateModal';
+import WordList from '~/components/WordList';
 
-import useWords from '~/hooks/useWords';
-import useWordOperation from '~/hooks/useWordOperation';
+import { charList } from './utils';
 
-import { isEmpty, dissoc, omit, equals } from 'ramda';
-
-import { charList, fetchingStatus } from './utils';
+import { pipe, tap } from 'ramda';
 
 import { AddIcon } from '@chakra-ui/icons';
 
-const isLoading = equals(fetchingStatus.loading);
-
 function App() {
-  const [prefix, setPrefix] = useState('');
-  const [word, setWord] = useState(null);
-
-  const { words, status } = useWords(prefix);
-  const {
-    status: operationStatus,
-    handleCreateWord,
-    handleDeleteWord,
-    handleUpdateWord,
-  } = useWordOperation(word);
-
   const wordCreateClosure = useDisclosure();
   const wordDetailClosure = useDisclosure();
   const wordEditClosure = useDisclosure();
+
+  const [prefix, setPrefix] = useState('');
+  const [word, setWord] = useState(null);
 
   return (
     <>
@@ -64,48 +53,18 @@ function App() {
               </HStack>
             </Flex>
 
-            {/** words list */}
-            <VStack align="stretch">
-              {isLoading(status) ? (
-                <Center>
-                  <Spinner />
-                </Center>
-              ) : (
-                words.map((word) => (
-                  <WordCard
-                    key={word._id}
-                    word={word}
-                    onClick={() => {
-                      wordDetailClosure.onOpen();
-                      setWord(word);
-                    }}
-                    onEdit={() => {
-                      wordEditClosure.onOpen();
-                      setWord(word);
-                    }}
-                    onDelete={() => handleDeleteWord(word)}
-                  />
-                ))
-              )}
-            </VStack>
+            <WordList
+              prefix={prefix}
+              onDisplay={pipe(tap(wordDetailClosure.onOpen), setWord)}
+              onEdit={pipe(tap(wordEditClosure.onOpen), setWord)}
+            />
           </VStack>
         </Container>
       </Box>
 
-      <WordFormModal
-        isOpen={wordEditClosure.isOpen}
-        loading={isLoading(operationStatus)}
-        onClose={wordEditClosure.onClose}
-        defaultFormData={omit(['review_count', '_id', 'prefix'], word)}
-        onSubmit={handleUpdateWord({ onSuccess: wordEditClosure.onClose })}
-      />
+      <WordCreateModal disclosure={wordCreateClosure} />
 
-      <WordFormModal
-        isOpen={wordCreateClosure.isOpen}
-        loading={isLoading(operationStatus)}
-        onClose={wordCreateClosure.onClose}
-        onSubmit={handleCreateWord({ onSuccess: wordCreateClosure.onClose })}
-      />
+      <WordUpdateModal word={word} disclosure={wordEditClosure} />
 
       <WordDisplayModal
         isOpen={wordDetailClosure.isOpen}
