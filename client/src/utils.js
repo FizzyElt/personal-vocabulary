@@ -1,10 +1,3 @@
-export const fetchingStatus = {
-  init: 'init',
-  loading: 'loading',
-  success: 'success',
-  fail: 'fail',
-};
-
 export const charList = [
   'A',
   'B',

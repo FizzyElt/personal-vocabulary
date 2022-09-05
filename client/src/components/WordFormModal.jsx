@@ -20,6 +20,7 @@ import {
 } from '@chakra-ui/react';
 import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
 import Joi from 'joi';
+import { equals } from 'ramda';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 
@@ -42,6 +43,7 @@ const defaultWordData = {
 export default function WordFormModal({
   isOpen = false,
   loading = false,
+  mode = 'create',
   onClose = () => {},
   onSubmit = () => {},
   defaultFormData = defaultWordData,
@@ -74,7 +76,7 @@ export default function WordFormModal({
               control={control}
               name="word"
               render={({ field, fieldState: { error, invalid } }) => (
-                <FormControl isRequired isInvalid={invalid}>
+                <FormControl isRequired isInvalid={invalid} isReadOnly={equals(mode, 'edit')}>
                   <FormLabel>word</FormLabel>
                   <Input placeholder="input your word" {...field} />
                   <FormErrorMessage>{error?.message || ''}</FormErrorMessage>

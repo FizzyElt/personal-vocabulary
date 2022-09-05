@@ -14,13 +14,16 @@ import {
   Box,
   Divider,
 } from '@chakra-ui/react';
-
-import { increaseReviewCount } from '~/sanity-api';
+import { useMutation } from '@apollo/client';
+import { INCREASE_REVIEW_COUNT } from '~/graphql';
+import { is } from 'ramda';
 
 export default function WordDisplayModal({ isOpen = false, onClose = () => {}, word }) {
+  const [increaseReviewCount] = useMutation(INCREASE_REVIEW_COUNT);
+
   useEffect(() => {
-    if (isOpen && word.word) {
-      increaseReviewCount(word._id);
+    if (isOpen && is(String, word.id)) {
+      increaseReviewCount({ variables: { id: word.id } });
     }
   }, [isOpen]);
 
