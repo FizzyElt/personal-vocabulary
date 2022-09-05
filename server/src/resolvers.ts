@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { head, isNil } from 'ramda';
+import { head, isNil, isEmpty } from 'ramda';
 
 interface ResolverContext {
   prisma: PrismaClient;
@@ -8,7 +8,7 @@ interface ResolverContext {
 const resolvers = {
   Query: {
     words: async (_: any, args: any, context: ResolverContext) => {
-      return isNil(args.prefix)
+      return isNil(args.prefix) || isEmpty(args.prefix)
         ? context.prisma.wordDoc.findMany()
         : context.prisma.wordDoc.findMany({
             where: {
@@ -21,7 +21,7 @@ const resolvers = {
   Mutation: {
     createWordDoc: async (_: any, args: any, context: ResolverContext) => {
       const word = await context.prisma.wordDoc.create({
-        data: { ...args.word, prefix: head(args.word.word).toLocaleUpperCase() },
+        data: { ...args.word, prefix: head(args.word.word).toUpperCase() },
       });
       return word;
     },
@@ -30,7 +30,7 @@ const resolvers = {
         where: {
           id: args.id,
         },
-        data: args.data,
+        data: args.word,
       });
       return word;
     },
@@ -38,6 +38,19 @@ const resolvers = {
       const word = await context.prisma.wordDoc.delete({
         where: {
           id: args.id,
+        },
+      });
+      return word;
+    },
+    increaseWordReviewCount: async (_: any, args: any, context: ResolverContext) => {
+      const word = await context.prisma.wordDoc.update({
+        where: {
+          id: args.id,
+        },
+        data: {
+          review_count: {
+            increment: 1,
+          },
         },
       });
       return word;

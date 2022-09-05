@@ -14,16 +14,22 @@ const typeDefs = gql`
     words(prefix: String): [WordDoc]
   }
 
-  input WordDocInput {
+  input WordDocCreateInput {
     word: String!
     translation: String!
     links: [String!]!
   }
 
+  input WordDocUpdateInput{
+    translation:String!
+    links:[String!]!
+  }
+
   type Mutation {
-    createWordDoc(word: WordDocInput): WordDoc!
-    updateWordDoc(id: ID!, word: WordDocInput): WordDoc!
+    createWordDoc(word: WordDocCreateInput): WordDoc!
+    updateWordDoc(id: ID!, word: WordDocUpdateInput): WordDoc!
     deleteWordDoc(id: ID!): WordDoc!
+    increaseWordReviewCount(id: ID!): WordDoc!
   }
 `;
 
