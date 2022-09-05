@@ -20,9 +20,9 @@ const typeDefs = gql`
     links: [String!]!
   }
 
-  input WordDocUpdateInput{
-    translation:String!
-    links:[String!]!
+  input WordDocUpdateInput {
+    translation: String!
+    links: [String!]!
   }
 
   type Mutation {
