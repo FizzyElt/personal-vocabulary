@@ -11,7 +11,7 @@ const typeDefs = gql`
   }
 
   type Query {
-    words: [WordDoc]
+    words(prefix: String): [WordDoc]
   }
 
   input WordDocInput {

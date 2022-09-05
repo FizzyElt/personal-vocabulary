@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { head } from 'ramda';
+import { head, isNil } from 'ramda';
 
 interface ResolverContext {
   prisma: PrismaClient;
@@ -8,8 +8,13 @@ interface ResolverContext {
 const resolvers = {
   Query: {
     words: async (_: any, args: any, context: ResolverContext) => {
-      const words = await context.prisma.wordDoc.findMany();
-      return words;
+      return isNil(args.prefix)
+        ? context.prisma.wordDoc.findMany()
+        : context.prisma.wordDoc.findMany({
+            where: {
+              prefix: args.prefix.toUpperCase(),
+            },
+          });
     },
   },
 
