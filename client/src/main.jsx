@@ -3,10 +3,32 @@ import ReactDOM from 'react-dom/client';
 import { ChakraProvider } from '@chakra-ui/react';
 import App from './App';
 import theme from './theme';
-import { ApolloClient, ApolloProvider, createHttpLink, InMemoryCache } from '@apollo/client';
+import {
+  ApolloClient,
+  ApolloProvider,
+  HttpLink,
+  InMemoryCache,
+  ApolloLink,
+  from,
+} from '@apollo/client';
+import { AUTH } from './utils';
+import { assoc } from 'ramda';
+
+const authLink = new ApolloLink((operation, forward) => {
+  operation.setContext(({ headers }) => {
+    const token = localStorage.getItem(AUTH.token);
+    return { headers: token ? assoc('authorization', token, headers) : headers };
+  });
+  return forward(operation);
+});
+
+const httpLink = new HttpLink({
+  uri: `http://localhost:4000`,
+});
 
 const client = new ApolloClient({
-  uri: import.meta.env.VITE_GRAPHQL_URI,
+  link: from([authLink, httpLink]),
+  //uri: 'http://localhost:4000',
   cache: new InMemoryCache(),
 });
 

@@ -2,11 +2,22 @@ import { useQuery, useMutation } from '@apollo/client';
 import { VStack, Center, Spinner } from '@chakra-ui/react';
 import WordCard from './WordCard';
 import { DELETE_WORD_DOC, WORDS_QUERY } from '~/graphql';
-
+import { useNavigate } from 'react-router-dom';
+import { AUTH_ERROR } from '../auth';
+import { AUTH } from '../utils';
 import { equals } from 'ramda';
 
 export default function WordList({ prefix = '', onDisplay = () => {}, onEdit = () => {} }) {
-  const { data, loading, error } = useQuery(WORDS_QUERY, { variables: { prefix } });
+  const navigate = useNavigate();
+  const { data, loading, error } = useQuery(WORDS_QUERY, {
+    variables: { prefix },
+    onError: (error) => {
+      if (equals(AUTH_ERROR.not_authorized, error.message)) {
+        localStorage.removeItem(AUTH.tokens);
+        navigate(`/login`);
+      }
+    },
+  });
 
   const [deleteWordDoc] = useMutation(DELETE_WORD_DOC, {
     update: (cache, { data: { deleteWordDoc } }) => {
@@ -16,6 +27,12 @@ export default function WordList({ prefix = '', onDisplay = () => {}, onEdit = (
             existingWordDocs.filter((docRef) => !equals(deleteWordDoc.id, readField('id', docRef))),
         },
       });
+    },
+    onError: (error) => {
+      if (equals(AUTH_ERROR.not_authorized, error.message)) {
+        localStorage.removeItem(AUTH.tokens);
+        navigate(`/login`);
+      }
     },
   });
 

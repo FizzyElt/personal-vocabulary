@@ -64,3 +64,16 @@ export const INCREASE_REVIEW_COUNT = gql`
     }
   }
 `;
+
+export const LOGIN = gql`
+  mutation Login($email:String!,$password:String!){
+    login(email:$email,password:$password){
+      token
+      user{
+        id,
+        name
+        email
+      }
+    }
+  }
+`

@@ -26,3 +26,7 @@ export const charList = [
   'Y',
   'Z',
 ];
+
+export const AUTH = {
+  token: 'jwt_token',
+};
