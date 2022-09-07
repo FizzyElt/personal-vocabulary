@@ -17,3 +17,14 @@ model WordDoc {
 
   @@map("words")
 }
+
+model User {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt   DateTime @default(now())
+  description String   @default("")
+  name        String
+  email       String   @unique
+  password    String
+
+  @@map("users")
+}
